@@ -43,9 +43,9 @@ router.put('/', validateCartBody, async (req, res, next) => {
         const user = await getUser(global.user.username);
         if(user) {
             const product = await getProduct(prodId);
+            const prodId = `prod-${uuid().substring(0, 5)}`
             if(product) {
                 const result = await updateCart(user.userId, { 
-                    prodId : prodId, 
                     title : product.title, 
                     price: product.price, 
                     qty : qty 

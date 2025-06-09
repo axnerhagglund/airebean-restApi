@@ -1,3 +1,4 @@
+import Menu from '../models/menu.js';
 import Product from '../models/product.js';
 
 export async function getMenu() {
@@ -17,5 +18,14 @@ export async function getProduct(prodId) {
     } catch(error) {
         console.log(error.message);
         return null;
+    }
+}
+
+export async function addProduct(product) {
+    try {
+        const result = await Menu.create(product)
+        return result;
+    } catch (error) {
+        console.log(error.message)
     }
 }
