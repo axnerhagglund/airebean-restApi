@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { addProduct, getMenu, getProduct, updateProduct } from '../services/menu.js';
+import { addProduct, deleteProduct, getMenu, getProduct, updateProduct } from '../services/menu.js';
 import { validateMenuBody } from '../middlewares/validators.js';
 
 import { v4 as uuid } from 'uuid';
@@ -51,7 +51,7 @@ router.post("/", validateMenuBody, async (req,res,next) => {
 router.put("/:prodId", validateMenuBody, async (req,res,next) => {
     const {title, desc, price} = req.body;
     const { prodId } = req.params;
-    console.log(prodId)
+    
     const updated = await updateProduct(prodId, title, desc, price);
     if(updated){
         res.status(200).json({
@@ -66,5 +66,22 @@ router.put("/:prodId", validateMenuBody, async (req,res,next) => {
         })
     }
 })
+//delete product
+router.delete("/:prodId", async (req, res) =>{ 
+    const { prodId } = req.params;
+    const deleted = await deleteProduct(prodId);
+    if (deleted) {
+        res.status(200).json({
+            success: true,
+            message: "product deleted successfully"
+        })
+    } else {
+        res.status(400).json({
+            success: false,
+            message: "no product found to be deleted"
+        })
+    }
+
+})  
 
 export default router;
