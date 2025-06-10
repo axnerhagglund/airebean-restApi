@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { addProduct, getMenu } from '../services/menu.js';
 import { validateMenuBody } from '../middlewares/validators.js';
-import Product from '../models/product.js';
+
 import { v4 as uuid } from 'uuid';
 
 const router = Router();
