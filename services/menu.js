@@ -45,3 +45,18 @@ export async function updateProduct( prodId, title, desc, price ){
         console.log(error)
     }
 }
+
+export async function deleteProduct(prodId) {
+    try {
+        
+        const deletedProduct = await Product.findOneAndDelete({prodId});
+        if(!deletedProduct) {
+            throw new Error("product do not exists")
+        }
+        return deletedProduct
+        
+        
+    } catch (error) {
+        console.log(error)
+    }
+}
