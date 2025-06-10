@@ -29,3 +29,19 @@ export async function addProduct(product) {
         console.log(error.message)
     }
 }
+
+export async function updateProduct( prodId, title, desc, price ){
+    try{    
+        return await Product.findOneAndUpdate(
+            { prodId },
+            {$set: {title, desc, price}},
+            { new: true, runValidators: true }
+
+        );
+        
+
+
+        } catch(error){
+        console.log(error)
+    }
+}

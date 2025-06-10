@@ -1,4 +1,6 @@
+
 import mongoose from 'mongoose';
+
 
 const Schema = mongoose.Schema;
 
@@ -21,9 +23,9 @@ const productSchema = new Schema({
     price : {
         type : Number,
         required : true
-    } 
+    }, 
+        
 });
-
 const Product = mongoose.model('Product', productSchema, "menu");
 
 export default Product;
