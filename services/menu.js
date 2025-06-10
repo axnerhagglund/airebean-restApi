@@ -1,4 +1,4 @@
-import Menu from '../models/menu.js';
+
 import Product from '../models/product.js';
 
 export async function getMenu() {
@@ -23,9 +23,25 @@ export async function getProduct(prodId) {
 
 export async function addProduct(product) {
     try {
-        const result = await Menu.create(product)
+        const result = await Product.create(product)
         return result;
     } catch (error) {
         console.log(error.message)
+    }
+}
+
+export async function updateProduct( prodId, title, desc, price ){
+    try{    
+        return await Product.findOneAndUpdate(
+            { prodId },
+            {$set: {title, desc, price}},
+            { new: true, runValidators: true }
+
+        );
+        
+
+
+        } catch(error){
+        console.log(error)
     }
 }

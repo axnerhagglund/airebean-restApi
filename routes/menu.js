@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { addProduct, getMenu } from '../services/menu.js';
+import { addProduct, getMenu, getProduct, updateProduct } from '../services/menu.js';
 import { validateMenuBody } from '../middlewares/validators.js';
-import Product from '../models/product.js';
+
 import { v4 as uuid } from 'uuid';
 
 const router = Router();
@@ -42,6 +42,27 @@ router.post("/", validateMenuBody, async (req,res,next) => {
         res.status(400).json({
             success: false,
             message: "operation failed, product not added"
+        })
+    }
+})
+
+//put product in menu
+
+router.put("/:prodId", validateMenuBody, async (req,res,next) => {
+    const {title, desc, price} = req.body;
+    const { prodId } = req.params;
+    console.log(prodId)
+    const updated = await updateProduct(prodId, title, desc, price);
+    if(updated){
+        res.status(200).json({
+            success : true,
+            message : "Product updated",
+            data: updated
+        })
+    } else {
+        res.status(400).json({
+            success : false,
+            message : "Product not found"
         })
     }
 })
