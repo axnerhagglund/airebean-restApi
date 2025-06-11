@@ -4,6 +4,7 @@ import { getProduct } from '../services/menu.js';
 import { getUser } from '../services/users.js';
 import { getCarts, getCart, updateCart } from '../services/cart.js';
 import { v4 as uuid } from 'uuid';
+import { authUser } from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -37,15 +38,15 @@ router.get('/:cartId', async (req, res, next) => {
     }
 })
 
-router.put('/', validateCartBody, async (req, res, next) => {
+router.put('/',authUser, validateCartBody,  async (req, res, next) => {
     const { prodId, qty, guestId } = req.body;
-    if(global.user) {
-        const user = await getUser(global.user.username);
+    if(req.user) {
+        const user = await getUser(req.user.username);
         if(user) {
             const product = await getProduct(prodId);
-            const prodId = `prod-${uuid().substring(0, 5)}`
             if(product) {
-                const result = await updateCart(user.userId, { 
+                const result = await updateCart(user.username, { 
+                    prodId: product.id,
                     title : product.title, 
                     price: product.price, 
                     qty : qty 

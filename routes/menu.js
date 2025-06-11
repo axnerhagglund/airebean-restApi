@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import { addProduct, deleteProduct, getMenu, getProduct, updateProduct } from '../services/menu.js';
 import { validateMenuBody } from '../middlewares/validators.js';
-
+import { authUser } from '../middlewares/auth.js';
+import { adminMiddleware } from '../middlewares/admin.js';
 import { v4 as uuid } from 'uuid';
 
 const router = Router();
+
+router.use(authUser)
 
 router.get('/', async (req, res, next) => {
     const menu = await getMenu();
@@ -21,7 +24,7 @@ router.get('/', async (req, res, next) => {
     }
 })
 
-router.post("/", validateMenuBody, async (req,res,next) => {
+router.post("/", validateMenuBody, adminMiddleware, async (req,res,next) => {
     const {title, price , desc} = req.body
     const prodId = `prod-${uuid().substring(0, 5)}`
     const result = await addProduct({
@@ -48,7 +51,7 @@ router.post("/", validateMenuBody, async (req,res,next) => {
 
 //put product in menu
 
-router.put("/:prodId", validateMenuBody, async (req,res,next) => {
+router.put("/:prodId", validateMenuBody,adminMiddleware, async (req,res,next) => {
     const {title, desc, price} = req.body;
     const { prodId } = req.params;
     
@@ -67,7 +70,7 @@ router.put("/:prodId", validateMenuBody, async (req,res,next) => {
     }
 })
 //delete product
-router.delete("/:prodId", async (req, res) =>{ 
+router.delete("/:prodId", adminMiddleware, async (req, res) =>{ 
     const { prodId } = req.params;
     const deleted = await deleteProduct(prodId);
     if (deleted) {
