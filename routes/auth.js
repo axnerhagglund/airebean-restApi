@@ -11,18 +11,10 @@ import { getToken } from '../utils/index.js';
 const router = Router();
 
 router.get('/logout', (req, res, next) => {
-    if(global.user) {
-        global.user = null;
-        res.json({
-            success: true,
-            message: 'User logged out successfully'
-        });
-    } else {
-        next({
-            status: 400,
-            message: 'No user is currently logged in'
-        });
-    }
+   res.status(201).json({
+    success: true,
+    message: "User logged out successfully. Discard the token on the client side."
+   })
 });
 
 router.post('/register', validateAuthBody, async (req, res) => {
@@ -54,7 +46,7 @@ router.post('/login', validateAuthBody, async (req, res) => {
         const correctPass = await comparePasswords(password, user.password)
         if(correctPass) {
             const token = getToken({ userId : user.userId, role: user.role, username: user.username })
-            res.json({
+            res.status(201).json({
                 success : true,
                 message : 'User logged in successfully',
                 token : `Bearer ${token}`

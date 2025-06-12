@@ -1,0 +1,351 @@
+openapi: 3.0.1
+info:
+  title: airbeanAPI
+  description: "Documentation for airbeanAPI"
+  version: 1.0.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    MenuItemBody:
+      type: object
+      required:
+        - title
+        - price
+        - desc
+      properties:
+        title:
+          type: string
+          example: kaffe latte
+        price:
+          type: number
+          example: 43
+        desc:
+          type: string
+          example: bryggd med kärlek
+    MenuItem:
+      allOf:
+        - $ref: '#/components/schemas/MenuItemBody'
+        - type: object
+          properties:
+            prodId:
+              type: string
+              example: prod-abc12
+            createdAt:
+              type: string
+              format: date-time
+              example: '2025-06-12T15:30:00.000Z'
+    
+    User:
+      description: User body
+      type: object
+      properties:
+        userId:
+          type: string
+          example: asdf-1233
+        username:
+          type: string
+          example: axnerHagglund
+        password:
+          type: string
+          example: axnerHagglund
+        role: #admin login
+          type: string
+          example: admin
+    UserBody:
+      description: User body
+      type: object
+      properties:
+        username:
+          type: string
+          example: axnerHagglund
+        password:
+          type: string
+          example: axnerHagglund
+        role: #admin login
+          type: string
+          example: admin
+  responses:
+    UnauthorizedError:
+      description: Unauthorized  missing or invalid JWT
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Unauthorized
+
+    ForbiddenError:
+      description: authentucated but no rights for this operation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Forbidden
+    BadRequestError:
+      description: Bad request from client
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Missing or invalid parameters in request
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Requested resource not found
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      description: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/UserBody"
+      responses:
+        "201":
+          description: Response for successfully register a user
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: New user registered successfully 
+        "400":
+          description: Registration unsuccessfull
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: New user registered unsuccessfully 
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      description: login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: axnerHagglund
+                password:
+                  type: string
+                  example: axnerHagglund
+      responses:
+        "201":
+          description: Response for successfully login
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example:  user logged in successfully 
+                token:
+                  type: string
+                  description: JWT-token prefixed with "Bearer "
+                  example: Bearer klmdasmdoi1dj928d23dn23d2903dj23d2i3dm2o3kldm2309d23
+        "400":
+          description: Login unsuccessfull
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User logged in unsuccessfully
+  /api/auth/logout:
+    get:
+      tags:
+        - Auth
+      description: Log out user
+      responses:
+        "200":
+          description: Response for successfully logging out user
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: User logged out successfully
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  /api/menu:
+    post:
+      tags:
+        - Menu
+      description: add a new product to menu **requires** authenticated user with role admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MenuItemBody"
+      responses:
+        "200":
+          description: product added to menu successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: product added to menu
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+  /api/menu/{prodId}:
+    put:
+      tags:
+        - Menu
+      description: updates title, description and price of a product **requires** authenticated user with role admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: prodId
+          required: true
+          schema:
+            type: string
+            example: prod-asd14
+          description: the ID of the product to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItemBody'
+      responses:
+        "200":
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Product updated
+                  data:
+                    $ref: '#/components/schemas/MenuItem'
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "404":
+          $ref: '#/components/responses/NotFoundError'
+        
+    delete:
+      tags:
+        - Menu
+      description: deletes a product from the menu **requires** an authentucated user with role admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: prodId
+          required: true
+          schema:
+            type: string
+            example: prod-abc12
+          description: The ID of the product to delete
+      responses:
+        "200":
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: product deleted successfully
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "404":
+          $ref: '#/components/responses/NotFoundError'
+
+
